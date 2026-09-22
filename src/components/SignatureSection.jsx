@@ -1,3 +1,4 @@
+
 import React, { useEffect, useRef } from "react";
 import { ArrowUpRight } from "lucide-react";
 
@@ -14,6 +15,11 @@ const SignatureSection = () => {
     let targetX = 0;
     let currentX = 0;
     let animationFrame;
+
+    // Touch variables
+    let touchStartX = 0;
+    let touchStartY = 0;
+    let touchStartScrollX = 0;
 
     // Cursor section ke andar hai ya nahi
     let isCursorInside = false;
@@ -42,8 +48,6 @@ const SignatureSection = () => {
 
     // ================= WHEEL =================
     const handleWheel = (e) => {
-      // Cursor section ke andar nahi hai
-      // to normal page scroll hone do
       if (!isCursorInside) return;
 
       const maxMove = Math.max(
@@ -62,18 +66,68 @@ const SignatureSection = () => {
         Math.min(targetX, maxMove)
       );
 
-      // Cards abhi horizontally move kar sakte hain
       const canMoveForward =
         e.deltaY > 0 && previousX < maxMove;
 
       const canMoveBackward =
         e.deltaY < 0 && previousX > 0;
 
-      // Sirf horizontal movement ke waqt
-      // normal vertical page scroll ko stop karo
       if (canMoveForward || canMoveBackward) {
         e.preventDefault();
       }
+    };
+
+    // ================= TOUCH START =================
+    const handleTouchStart = (e) => {
+      if (!e.touches.length) return;
+
+      touchStartX = e.touches[0].clientX;
+      touchStartY = e.touches[0].clientY;
+
+      touchStartScrollX = targetX;
+    };
+
+    // ================= TOUCH MOVE =================
+    const handleTouchMove = (e) => {
+      if (!e.touches.length) return;
+
+      const currentTouchX = e.touches[0].clientX;
+      const currentTouchY = e.touches[0].clientY;
+
+      const deltaX = touchStartX - currentTouchX;
+      const deltaY = touchStartY - currentTouchY;
+
+      const maxMove = Math.max(
+        track.scrollWidth - section.clientWidth,
+        0
+      );
+
+      if (maxMove <= 0) return;
+
+      // Horizontal swipe
+      if (Math.abs(deltaX) > Math.abs(deltaY)) {
+        targetX = touchStartScrollX + deltaX;
+
+        targetX = Math.max(
+          0,
+          Math.min(targetX, maxMove)
+        );
+
+        e.preventDefault();
+      }
+    };
+
+    // ================= TOUCH END =================
+    const handleTouchEnd = () => {
+      const maxMove = Math.max(
+        track.scrollWidth - section.clientWidth,
+        0
+      );
+
+      targetX = Math.max(
+        0,
+        Math.min(targetX, maxMove)
+      );
     };
 
     // ================= RESIZE =================
@@ -103,6 +157,24 @@ const SignatureSection = () => {
       passive: false,
     });
 
+    section.addEventListener(
+      "touchstart",
+      handleTouchStart,
+      { passive: true }
+    );
+
+    section.addEventListener(
+      "touchmove",
+      handleTouchMove,
+      { passive: false }
+    );
+
+    section.addEventListener(
+      "touchend",
+      handleTouchEnd,
+      { passive: true }
+    );
+
     window.addEventListener(
       "resize",
       handleResize
@@ -124,6 +196,21 @@ const SignatureSection = () => {
       window.removeEventListener(
         "wheel",
         handleWheel
+      );
+
+      section.removeEventListener(
+        "touchstart",
+        handleTouchStart
+      );
+
+      section.removeEventListener(
+        "touchmove",
+        handleTouchMove
+      );
+
+      section.removeEventListener(
+        "touchend",
+        handleTouchEnd
       );
 
       window.removeEventListener(
