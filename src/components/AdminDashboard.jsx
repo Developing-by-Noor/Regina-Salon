@@ -39,7 +39,7 @@ import {
   LogOut,
 } from "lucide-react";
 
-const ADMIN_EMAIL = "admin@gmail.com";
+const ADMIN_EMAIL = "174sadafsultan@gmail.com";
 
 const AdminDashboard = () => {
   // =====================================================
