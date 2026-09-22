@@ -5,13 +5,7 @@ import Video from "/public/Video.mp4";
 
 const Hero = () => {
   const handleAppointment = () => {
-    const section = document.querySelector("#appointment");
-
-    if (section) {
-      section.scrollIntoView({
-        behavior: "smooth",
-      });
-    }
+    window.location.href = "/book-appointment";
   };
 
   return (
@@ -99,11 +93,8 @@ const Hero = () => {
 
         </div>
       </div>
-
-     
     </section>
   );
 };
 
 export default Hero;
-
